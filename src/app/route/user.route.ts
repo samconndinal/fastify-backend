@@ -1,33 +1,38 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { type FastifyPluginAsync, type FastifyInstance } from 'fastify'
-import { login, protect, restrictTo, signup } from '../controller/auth.controller'
-import { validateRequest } from '../middleware/validate'
+import { type FastifyPluginAsync, type FastifyInstance } from "fastify";
+import {
+  protect,
+  restrictTo,
+} from "../controller/auth.controller";
+import { validateRequest } from "../middleware/validate";
 import {
   getUser,
   findUserById,
   createUser,
   updateUser,
-  deleteUser
-} from '../controller/user.controller'
-import { userSchema } from '../utils/validator'
+  deleteUser,
+} from "../controller/user.controller";
+import { userSchema } from "../utils/validator";
+import { applyRoutes } from "../utils/route";
+
+
 
 const userRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  /* Auth routes */
-  fastify.post('/sign-up', {}, signup)
-  fastify.post('/login', {}, login)
+  fastify.decorateRequest("user", "hello world");
 
-  fastify.decorateRequest('user', 'hello world')
+  applyRoutes(fastify, [
+    [ "", [], {},
+      { get: [getUser], post: [validateRequest(userSchema), createUser] },
+    ],
+    [
+      ":id", [], {},
+      {
+        get: [findUserById],
+        put: [validateRequest(userSchema), updateUser],
+        delete: [deleteUser],
+      },
+    ],
+  ]);
+};
 
-  /* Protect all routes after this middleware */
-  // fastify.addHook('preHandler', protect)
-  fastify.addHook('preHandler', restrictTo('Admin'))
-
-  /* User routes */
-  fastify.get('/', getUser)
-  // fastify.get('/:id', {}, findUserById)
-  // fastify.post('/', { preValidation: [validateRequest(userSchema)] }, createUser)
-  // fastify.put('/:id', { preValidation: [validateRequest(userSchema)] }, updateUser)
-  // fastify.delete('/:id', {}, deleteUser)
-}
-
-export default userRoutes
+export default userRoutes;

@@ -1,27 +1,26 @@
-import type express from 'express'
-import { type NextFunction, type Request, type Response, type Router } from 'express'
+import { type FastifyInstance } from "fastify";
 
-interface Route {
-  path: string
-  router: express.Router
-}
+type RouteConfig = [
+  string,
+  any[],
+  any,
+  {
+    [method: string]: any[];
+  },
+  any[]?
+];
 
-type HttpMethod = 'get' | 'post' | 'put' | 'delete'
-type MiddlewareFunction = (req: Request, res: Response, next: NextFunction) => Promise<void>
-export type RouteDetails = [string, MiddlewareFunction[], MiddlewareFunction]
+export const applyRoutes = (fastify: FastifyInstance, routeConfig: RouteConfig[]) => {
+  routeConfig.forEach(([route, middleware, options, methods]) => {
+    const routePath = `/${route}`;
 
-export function applyRoutes (routes: Record<HttpMethod, RouteDetails[]>, route: Router): void {
-  Object.entries(routes).forEach(([method, routeDetails]) => {
-    routeDetails.forEach(([path, middleware, handler]) => {
-      (route[method as HttpMethod] as any)(path, ...middleware, handler)
-    })
-  })
-}
-
-const useRoutes = (app: express.Application, routes: Route[]): void => {
-  routes.forEach((route) => {
-    app.use(route.path, route.router)
-  })
-}
-
-export default useRoutes
+    Object.entries(methods).forEach(([method, handlers]) => {
+      (fastify[method as keyof FastifyInstance] as any)(
+        routePath,
+        options,
+        ...middleware,
+        ...handlers
+      );
+    });
+  });
+};
