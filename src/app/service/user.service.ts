@@ -5,11 +5,11 @@
 // import { withTransaction } from '../config/transact'
 // import { CustomError } from '../lib/errors'
 import {
-  createUserModel,
-  deleteUserModel,
+  createUser as createUserModel,
+  deleteUser as deleteUserModel,
   findUserByEmail,
-  getUserModel,
-  updateUserModel
+  getUser as getUserModel,
+  updateUser as updateUserModel
 } from '../model/user.model'
 
 export const search = async (

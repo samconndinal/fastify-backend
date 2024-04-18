@@ -12,9 +12,9 @@ import {
 import knex from '../config/knex'
 import { withTransaction } from '../config/transact'
 import {
-  createUserModel,
+  createUser,
   findUserByEmail,
-  getUserByIdModel
+  getUserById
 } from '../model/user.model'
 import Email from '../utils/email'
 import { CustomError, NotFoundError, UnauthorizedError } from '@/core/errors'
@@ -47,7 +47,7 @@ export const signup = async (
   await withTransaction(
     knex,
     async (trx: Knex) =>
-      await createUserModel(
+      await createUser(
         { email, username, password: passEncrypt, role },
         trx
       )
@@ -116,7 +116,7 @@ export const protect = async (
   }
 
   // 3) Check if user still exists
-  const currentUser = await getUserByIdModel(String(decoded?.id), knex)
+  const currentUser = await getUserById(String(decoded?.id), knex)
   if (!currentUser) {
     throw new UnauthorizedError('Invalid token. Please log in again.')
   }
@@ -143,7 +143,7 @@ export const restrictTo = (...roles: string[]) => {
       }
 
       // Check if user still exists
-      const findRole = await getUserByIdModel(String(id), knex)
+      const findRole = await getUserById(String(id), knex)
 
       if (!findRole || findRole.role !== 'Admin') {
         throw new UnauthorizedError('You do not have permission to perform this action')
