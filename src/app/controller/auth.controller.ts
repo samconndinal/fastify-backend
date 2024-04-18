@@ -116,7 +116,7 @@ export const protect = async (
   }
 
   // 3) Check if user still exists
-  const currentUser = await getUserById(String(decoded?.id), knex)
+  const currentUser = await getUserById(String(decoded?.id))
   if (!currentUser) {
     throw new UnauthorizedError('Invalid token. Please log in again.')
   }
@@ -143,7 +143,7 @@ export const restrictTo = (...roles: string[]) => {
       }
 
       // Check if user still exists
-      const findRole = await getUserById(String(id), knex)
+      const findRole: any = await getUserById(String(id))
 
       if (!findRole || findRole.role !== 'Admin') {
         throw new UnauthorizedError('You do not have permission to perform this action')

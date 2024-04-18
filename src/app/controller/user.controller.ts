@@ -4,6 +4,7 @@ import { type FastifyReply, type FastifyRequest } from 'fastify'
 // import { InternalServerError, NotFoundError } from '@/core/lib/errors'
 // import { getUserByIdModel } from '../model/user.model'
 import {
+  find,
   // create as createUserService,
   // destroy as deleteUserService,
   search as getUserService
@@ -17,7 +18,7 @@ export const getUser = async (
   const { page = 1, limit = 10 } = request.query as any
 
   await getUserService(Number(page), Number(limit))
-    .then(async (result) => await reply.code(200).send({ data: result }))
+    .then((result) => reply.code(200).send(result))
     .catch((err: string) => { throw new Error(err) })
 }
 
@@ -25,16 +26,11 @@ export const findUserById = async (
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> => {
-  const { id } = request.params as any
+  const { id } = request.params as any 
 
-  // await getUserByIdModel(id, knex)
-  //   .then((result: any) => {
-  //     if (!result) {
-  //       throw new NotFoundError('User not found')
-  //     }
-  //     return reply.code(200).send({ data: result })
-  //   })
-  //   .catch((err: string) => { throw new NotFoundError(err) })
+  await find(id)
+    .then((result: any) =>  reply.code(200).send(result))
+    .catch((err: string) => { throw new Error(err) })
 }
 
 export const createUser = async (

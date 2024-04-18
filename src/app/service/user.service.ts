@@ -8,14 +8,17 @@ import {
   createUser as createUserModel,
   deleteUser as deleteUserModel,
   findUserByEmail,
+  getUserById,
   getUser as getUserModel,
   updateUser as updateUserModel
 } from '../model/user.model'
 
-export const search = async (
+export const search = (
   page: number,
   limit: number
-): Promise<any> => await getUserModel(page, limit)
+): Promise<any> => getUserModel(page, limit)
+
+export const find = (id: string): Promise<any> => getUserById(id)
 
 export const create = async (body: any): Promise<any> => {
   // const { email, password } = body
